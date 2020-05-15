@@ -58,7 +58,21 @@ def guided_modes_1DTE(prm, k0, h):
     # also extract the eigenvectors
     vecs = vecs[mask]
 
+    # since eigenvectors can be scaled by any
+    # constant, we decided to normalize them
+    # with respect to their maximum value or
+    # their minimum value depending which
+    # one is larger (abs)
+    for i, v in enumerate(vecs):
+        mi = np.min(v)
+        ma = np.max(v)
+        if abs(mi) > abs(ma):
+            vecs[i] = v / mi
+        else:
+            vecs[i] = v / ma
+
     return eff_eps, vecs
+
 
 def guided_modes_2D(prm, k0, h, numb):
     """Computes the effective permittivity of a quasi-TE polarized guided 
