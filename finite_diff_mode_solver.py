@@ -31,8 +31,9 @@ def get_eigen_matrix(L, k):
     # their minimum value depending which
     # one is larger (abs)
     for i, v in enumerate(vecs):
-        mi = np.min(v)
-        ma = np.max(v)
+        # due to symmetric we can search for the max/min in one half
+        mi = np.min(v[0:len(v) // 2])
+        ma = np.max(v[0:len(v) // 2])
         if abs(mi) > abs(ma):
             vecs[i] = v / mi
         else:
@@ -41,7 +42,7 @@ def get_eigen_matrix(L, k):
     return ev, vecs
 
 
-def guided_modes_1DTE(prm, k0, h):
+def guided_modes_1DTE(prm, k0, h, dtype_mat=np.float64):
     """Computes the effective permittivity of a TE polarized guided eigenmode.
     All dimensions are in µm.
     Note that modes are filtered to match the requirement that
@@ -73,10 +74,9 @@ def guided_modes_1DTE(prm, k0, h):
     diag_below = diag_above
 
     # fill the sparse matrix with the data
-    data = np.array([diag, diag_above, diag_below])
+    data = np.array([diag, diag_above, diag_below]).astype(dtype_mat)
     offset = np.array([0, 1, -1])
     L = sps.dia_matrix((data, offset), shape=out_shape)
-
     # call function to calculate normalize eigenvectors and eigenvalues
     ev, vecs = get_eigen_matrix(L, len(prm) - 2)
 
@@ -91,7 +91,7 @@ def guided_modes_1DTE(prm, k0, h):
     return eff_eps, vecs
 
 
-def guided_modes_2D(prm, k0, h, numb):
+def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
     """Computes the effective permittivity of a quasi-TE polarized guided
     eigenmode. All dimensions are in µm.
 
@@ -134,7 +134,7 @@ def guided_modes_2D(prm, k0, h, numb):
     other = np.ones(N) * den
 
     # fill the sparse matrix with the data
-    data = np.array([diag, n_diag, n_diag, other, other])
+    data = np.array([diag, n_diag, n_diag, other, other]).astype(dtype_mat)
     offset = np.array([0, 1, -1, -Nx, Nx])
     L = sps.dia_matrix((data, offset), shape=(N, N))
 
