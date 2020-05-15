@@ -135,7 +135,7 @@ def guided_modes_2D(prm, k0, h, numb):
 
     # fill the sparse matrix with the data
     data = np.array([diag, n_diag, n_diag, other, other])
-    offset = np.array([0, 1, -1, -Ny, Ny])
+    offset = np.array([0, 1, -1, -Nx, Nx])
     L = sps.dia_matrix((data, offset), shape=(N, N))
 
     # get eigenvalues and eigenvectors
