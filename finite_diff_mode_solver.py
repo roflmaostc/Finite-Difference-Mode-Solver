@@ -145,5 +145,11 @@ def guided_modes_2D(prm, k0, h, numb):
     # we need to reshape the obtained vecs into a 2d array
     for i, v in enumerate(vecs):
         n_vecs.append(vecs[i].reshape((Ny, Nx)))
+    n_vecs = np.array(n_vecs)
 
-    return ev, np.array(n_vecs)
+    # sort the results according to the eigenvalues
+    order = np.flip(ev.argsort())
+    ev = ev[order]
+    n_vecs = n_vecs[order]
+
+    return ev, n_vecs
