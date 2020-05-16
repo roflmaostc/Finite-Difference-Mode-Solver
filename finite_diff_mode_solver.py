@@ -2,7 +2,7 @@
 '''
 import numpy as np
 import scipy.sparse as sps
-from scipy.sparse.linalg import eigs
+import scipy.sparse.linalg as spl
 
 
 def get_eigen_matrix(L, k):
@@ -17,13 +17,21 @@ def get_eigen_matrix(L, k):
     ev: eigenvalues
     vecs: eigenvectors vertically stacked together
     """
+
     # calculate eigenvalues and take real part of them
     # absorption is negligible
-    ev, vecs = eigs(L, k=k)
+    # eigsh seems to be faster than eigs
+    # since our matrix L is symmetric, we can use it
+    ev, vecs = spl.eigsh(L, k=k)
     ev = np.real(ev)
     vecs = np.real(vecs)
     # swap axis in vecs, because vecs are aligned horizontally
     vecs = vecs.swapaxes(1, 0)
+
+    # sort the results according to the eigenvalues
+    order = np.flip(ev.argsort())
+    ev = ev[order]
+    vecs = vecs[order]
 
     # since eigenvectors can be scaled by any
     # constant, we decided to normalize them
@@ -136,7 +144,7 @@ def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
     # fill the sparse matrix with the data
     data = np.array([diag, n_diag, n_diag, other, other]).astype(dtype_mat)
     offset = np.array([0, 1, -1, -Nx, Nx])
-    L = sps.dia_matrix((data, offset), shape=(N, N))
+    L = sps.diags(data, offset)
 
     # get eigenvalues and eigenvectors
     ev, vecs = get_eigen_matrix(L, numb)
