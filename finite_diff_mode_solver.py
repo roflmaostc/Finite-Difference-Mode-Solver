@@ -72,19 +72,17 @@ def guided_modes_1DTE(prm, k0, h, dtype_mat=np.float64):
     guided : 2d-array
         Field distributions of the guided eigenmodes
     """
-    out_shape = (len(prm), len(prm))
 
     # diagonal of sparse matrix
     den = 1 / k0 ** 2 / h ** 2
     diag = -2 * den + prm
     # minor diagonals of the matrix
-    diag_above = np.ones(prm.shape) * den
-    diag_below = diag_above
+    n_diag = np.ones(prm.shape) * den
 
     # fill the sparse matrix with the data
-    data = np.array([diag, diag_above, diag_below]).astype(dtype_mat)
+    data = np.array([diag, n_diag, n_diag]).astype(dtype_mat)
     offset = np.array([0, 1, -1])
-    L = sps.dia_matrix((data, offset), shape=out_shape)
+    L = sps.diags(data, offset)
     # call function to calculate normalize eigenvectors and eigenvalues
     ev, vecs = get_eigen_matrix(L, len(prm) - 2)
 
