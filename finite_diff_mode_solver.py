@@ -1,5 +1,3 @@
-'''Homework 1, Computational Photonics, SS 2020:  FD mode solver.
-'''
 import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg as spl
@@ -7,6 +5,7 @@ import scipy.sparse.linalg as spl
 
 def get_eigen_matrix(L, k):
     """Computes k eigenvectors and eigenvalues of sparse matrix L.
+
     Parameters
     ----------
     L: sparse Matrix
@@ -18,11 +17,12 @@ def get_eigen_matrix(L, k):
     vecs: eigenvectors vertically stacked together
     """
 
-    # calculate eigenvalues and take real part of them
+    # calculate eigenvalues and take real part of them since
     # absorption is negligible
     # eigsh seems to be faster than eigs
     # since our matrix L is symmetric, we can use it
     ev, vecs = spl.eigsh(L, k=k)
+
     ev = np.real(ev)
     vecs = np.real(vecs)
     # swap axis in vecs, because vecs are aligned horizontally
@@ -149,8 +149,8 @@ def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
 
     n_vecs = []
     # we need to reshape the obtained vecs into a 2d array
-    for i, v in enumerate(vecs):
-        n_vecs.append(vecs[i].reshape((Ny, Nx)))
+    for v in vecs:
+        n_vecs.append(v.reshape((Ny, Nx)))
     n_vecs = np.array(n_vecs)
 
     # sort the results according to the eigenvalues
