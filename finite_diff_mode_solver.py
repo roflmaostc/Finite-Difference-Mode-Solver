@@ -22,9 +22,9 @@ def get_eigen_matrix(L, k):
     # eigsh seems to be faster than eigs
     # since our matrix L is symmetric, we can use it
     ev, vecs = spl.eigsh(L, k=k)
-
     ev = np.real(ev)
     vecs = np.real(vecs)
+
     # swap axis in vecs, because vecs are aligned horizontally
     vecs = vecs.swapaxes(1, 0)
 
@@ -33,11 +33,9 @@ def get_eigen_matrix(L, k):
     ev = ev[order]
     vecs = vecs[order]
 
-    # since eigenvectors can be scaled by any
-    # constant, we decided to normalize them
-    # with respect to their maximum value or
-    # their minimum value depending which
-    # one is larger (abs)
+    # since eigenvectors can be scaled by any constant, we decided to
+    # normalize them with respect to their maximum value or their
+    # minimum value depending which one is larger (abs)
     for i, v in enumerate(vecs):
         # due to symmetric we can search for the max/min in one half
         mi = np.min(v[0:len(v) // 2])
@@ -52,7 +50,7 @@ def get_eigen_matrix(L, k):
 
 def guided_modes_1DTE(prm, k0, h, dtype_mat=np.float64):
     """Computes the effective permittivity of a TE polarized guided eigenmode.
-    All dimensions are in µm.
+    All space dimensions are in µm.
     Note that modes are filtered to match the requirement that
     their effective permittivity is larger than the substrate (cladding).
 
@@ -76,7 +74,7 @@ def guided_modes_1DTE(prm, k0, h, dtype_mat=np.float64):
     # diagonal of sparse matrix
     den = 1 / k0 ** 2 / h ** 2
     diag = -2 * den + prm
-    # minor diagonals of the matrix
+    # off diagonals of the matrix
     n_diag = np.ones(prm.shape) * den
 
     # fill the sparse matrix with the data
@@ -99,7 +97,8 @@ def guided_modes_1DTE(prm, k0, h, dtype_mat=np.float64):
 
 def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
     """Computes the effective permittivity of a quasi-TE polarized guided
-    eigenmode. All dimensions are in µm.
+    eigenmode.
+    All space dimensions are in µm.
 
     Parameters
     ----------
@@ -130,7 +129,7 @@ def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
     den = 1 / k0 ** 2 / h ** 2
     # diagonal of sparse matrix
     diag = (-4 * den + prm)
-    # minor diagonals of the matrix
+    # off diagonals of the matrix
     n_diag = np.ones(N) * den
     # this mask determines all position of zeros
     mask_n_diag = np.arange(1, N + 1) % Nx == 0
@@ -152,10 +151,5 @@ def guided_modes_2D(prm, k0, h, numb, dtype_mat=np.float64):
     for v in vecs:
         n_vecs.append(v.reshape((Ny, Nx)))
     n_vecs = np.array(n_vecs)
-
-    # sort the results according to the eigenvalues
-    order = np.flip(ev.argsort())
-    ev = ev[order]
-    n_vecs = n_vecs[order]
 
     return ev, n_vecs
